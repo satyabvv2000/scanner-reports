@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Screener-Rsi Results Us &mdash; Screener Report</title>
+<style>
+:root{
+  --navy:#1a2340;--mid:#2c4170;--blue:#3a6db8;--red:#c8102e;
+  --bg:#f4f6fa;--card:#ffffff;--border:#dde1ec;
+  --green:#1d7840;--amber:#c8a030;--teal:#0870a8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--navy);font-size:13px}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#1a2340 0%,#2c4170 60%,#c8102e 100%);
+  color:#fff;padding:14px 18px;display:flex;align-items:center;
+  gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);position:sticky;top:0;z-index:100
+}
+header .badge{
+  background:var(--red);color:#fff;font-weight:800;font-size:13px;
+  padding:4px 10px;border-radius:4px;letter-spacing:1px;white-space:nowrap
+}
+header h1{font-size:16px;font-weight:700;line-height:1.2}
+header .subtitle{font-size:11px;opacity:.85;margin-top:2px}
+header .meta{margin-left:auto;font-size:11px;opacity:.8;text-align:right;line-height:1.7}
+
+/* CONTROLS */
+.controls{
+  background:#fff;border-bottom:2px solid var(--red);
+  padding:9px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+  position:sticky;top:52px;z-index:90
+}
+.controls select,.controls input{
+  padding:5px 8px;border:1px solid var(--border);border-radius:5px;
+  font-size:12px;background:#fff;cursor:pointer
+}
+.controls select{min-width:140px}
+.controls input[type=text]{min-width:160px}
+.controls button{
+  padding:5px 12px;border:none;border-radius:5px;font-size:12px;
+  cursor:pointer;font-weight:600;transition:background .15s
+}
+.btn-clear{background:#f0f2f8;color:var(--navy)}
+.btn-clear:hover{background:#e2e6f0}
+.btn-export{background:var(--green);color:#fff}
+.btn-export:hover{background:#15612f}
+.controls label{font-size:11px;color:#607090;font-weight:600}
+
+/* FILTER CHIPS */
+.chip-bar{
+  background:#fff;padding:6px 14px;display:flex;flex-wrap:wrap;gap:5px;
+  border-bottom:1px solid var(--border)
+}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border);background:#f8f9fc;
+  color:#607090;transition:all .15s;user-select:none
+}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.active{background:var(--mid);color:#fff;border-color:var(--mid)}
+.chip .chip-x{font-size:13px;margin-left:2px;opacity:.7}
+
+/* STATS BAR - removed */
+
+/* TABLE */
+.table-wrap{padding:10px 14px;overflow-x:auto}
+table{
+  width:100%;border-collapse:collapse;background:#fff;
+  border-radius:7px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)
+}
+thead th{
+  background:linear-gradient(135deg,#1a2340,#2c4170);color:#fff;
+  padding:8px 10px;font-size:11px;font-weight:700;letter-spacing:.3px;
+  text-transform:uppercase;white-space:nowrap;
+  cursor:pointer;user-select:none
+}
+thead th:hover{background:#3a5080}
+thead th .sort-arrow{font-size:9px;margin-left:3px;opacity:.6}
+thead th.sorted .sort-arrow{opacity:1}
+tbody td{
+  padding:6px 10px;border-bottom:1px solid #eef0f6;font-size:12px;
+  white-space:nowrap
+}
+tbody tr:hover{background:#f0f4ff}
+tbody tr.highlight{background:#fffbe6}
+
+/* Boolean badges */
+.badge-true{
+  display:inline-block;padding:1px 8px;border-radius:10px;
+  font-size:10px;font-weight:700;background:#d4edda;color:#155724
+}
+.badge-false{
+  display:inline-block;padding:1px 8px;border-radius:10px;
+  font-size:10px;font-weight:700;background:#f0f2f8;color:#8898b0
+}
+
+/* Numeric cell coloring */
+.num-high{color:#155724;font-weight:600}
+.num-low{color:#a03030;font-weight:600}
+
+/* PAGINATION */
+.pagination{
+  padding:10px 14px;display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:8px
+}
+.pagination button{
+  padding:4px 10px;border:1px solid var(--border);border-radius:5px;
+  background:#fff;cursor:pointer;font-size:12px
+}
+.pagination button:hover{background:#f0f2f8}
+.pagination button.active-page{background:var(--mid);color:#fff;border-color:var(--mid)}
+.pagination .page-info{font-size:11px;color:#607090}
+.page-size-select{padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px}
+
+/* FOOTER */
+footer{
+  text-align:center;padding:12px;font-size:10px;color:#8898b0;
+  border-top:1px solid var(--border);margin-top:12px
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#bcc4d8;border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">SCREENER</div>
+  <div>
+    <div class="subtitle">Stock Screener Report</div>
+    <h1>Screener-Rsi Results Us</h1>
+  </div>
+  <div class="meta">
+    56 Tickers &middot; 1 Date(s) &middot; 56 Records<br>
+    Generated 02 Nov 2026, 19:00
+  </div>
+</header>
+
+<div class="controls" id="controlBar">
+  <label>Date:</label>
+  <select id="dateFilter" onchange="applyFilters()">
+    <option value="">All Dates</option>
+  </select>
+
+  <label>Ticker:</label>
+  <input type="text" id="tickerSearch" placeholder="&#128269; Search ticker..." oninput="applyFilters()">
+
+  <button class="btn-clear" onclick="clearFilters()">&#10005; Clear</button>
+  <button class="btn-export" onclick="exportCSV()">&#x1F4E5; Export CSV</button>
+  <span id="rowCount" style="font-size:11px;color:#8080a8;margin-left:4px"></span>
+</div>
+
+<div class="chip-bar" id="chipBar"></div>
+
+
+
+<div class="table-wrap">
+  <table>
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+<footer>
+  Screener Report &mdash; auto-generated from screener-rsi_results_US.csv &middot; 02 Nov 2026, 19:00
+</footer>
+
+<script>
+const DATA = [{"Date": "2026-10-31", "Ticker": "ADP", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.99", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "BTSG", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.31", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CCEP", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.8", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CHRD", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.87", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CME", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.18", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "COKE", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.43", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "COLM", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.69", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CTAS", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.93", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CVCO", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.81", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "ERIE", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.98", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "FIZZ", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.72", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "GH", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "5.3", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "HTHT", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.46", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "INCY", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.0", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "LNTH", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "0.36", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MDLZ", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.87", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MEOH", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.51", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MNST", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.05", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "NMFCZ", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "0.31", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "TILE", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.53", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "ADT", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.63", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "AIG", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.6", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "ALL", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.95", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "AOS", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.61", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CF", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "True", "VCP": "0T", "WH": "True", "adr": "3.29", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CHH", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.21", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CL", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.98", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CNO", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.75", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CNX", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.84", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "CRGY", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.67", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CSL", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.03", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "CWT", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "True", "VCP": "0T", "WH": "True", "adr": "2.36", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "DE", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.95", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "DIS", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.64", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "ET", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.05", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "EXPD", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.96", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "FRO", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.98", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "G", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.0", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "HII", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.81", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "HNI", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.85", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "IHG", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.5", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "KO", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.59", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MCK", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.12", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MFAO", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "0.47", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MICC", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.86", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "MMM", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.32", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MRK", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.95", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "MSGS", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.37", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "OKE", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "True", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.33", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "PG", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.63", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "SJM", "rsiCrossing": "True", "rsiCrossingS": "True", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.07", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "SPOT", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "3.58", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "SSL", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.75", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "WES", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "False", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.72", "tightRange": "False"}, {"Date": "2026-10-31", "Ticker": "WM", "rsiCrossing": "True", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "False", "rsiSequence": "False", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "1.8", "tightRange": "True"}, {"Date": "2026-10-31", "Ticker": "WPP", "rsiCrossing": "False", "rsiCrossingS": "False", "rsiCrossingHT": "False", "rsiTrending": "True", "rsiSequence": "True", "emaSequence": "True", "ema9Touch": "False", "VCP": "0T", "WH": "True", "adr": "2.31", "tightRange": "False"}];
+const HEADERS = ["Date", "Ticker", "rsiCrossing", "rsiCrossingS", "rsiCrossingHT", "rsiTrending", "rsiSequence", "emaSequence", "ema9Touch", "VCP", "WH", "adr", "tightRange"];
+const COL_TYPES = {"Date": "text", "Ticker": "text", "rsiCrossing": "boolean", "rsiCrossingS": "boolean", "rsiCrossingHT": "boolean", "rsiTrending": "boolean", "rsiSequence": "boolean", "emaSequence": "boolean", "ema9Touch": "boolean", "VCP": "text", "WH": "boolean", "adr": "numeric", "tightRange": "boolean"};
+const BOOL_COLS = ["rsiCrossing", "rsiCrossingS", "rsiCrossingHT", "rsiTrending", "rsiSequence", "emaSequence", "ema9Touch", "WH", "tightRange"];
+const DATES = ["2026-10-31"];
+
+let filteredData = [...DATA];
+let sortCol = null, sortAsc = true;
+let currentPage = 1, pageSize = 50;
+let boolFilters = {};  // col -> true/false/null
+
+/* ---- INIT ---- */
+(function init() {
+  // Date dropdown
+  const ds = document.getElementById('dateFilter');
+  DATES.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    ds.appendChild(o);
+  });
+  // If only one date, auto-select it
+  if (DATES.length === 1) ds.value = DATES[0];
+
+  // Boolean filter chips
+  const chipBar = document.getElementById('chipBar');
+  BOOL_COLS.forEach(col => {
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.dataset.col = col;
+    chip.dataset.state = '0'; // 0=off, 1=true, 2=false
+    chip.innerHTML = col;
+    chip.onclick = () => toggleChip(chip);
+    chipBar.appendChild(chip);
+  });
+
+  buildHeader();
+  applyFilters();
+})();
+
+/* ---- HEADER ---- */
+function buildHeader() {
+  const tr = document.createElement('tr');
+  HEADERS.forEach(h => {
+    const th = document.createElement('th');
+    th.innerHTML = h + '<span class="sort-arrow">&#9650;</span>';
+    th.onclick = () => sortBy(h, th);
+    tr.appendChild(th);
+  });
+  document.getElementById('tableHead').appendChild(tr);
+}
+
+/* ---- CHIP TOGGLE ---- */
+function toggleChip(chip) {
+  let state = parseInt(chip.dataset.state);
+  state = (state + 1) % 3;
+  chip.dataset.state = state;
+  const col = chip.dataset.col;
+  if (state === 0) {
+    chip.className = 'chip';
+    chip.innerHTML = col;
+    delete boolFilters[col];
+  } else if (state === 1) {
+    chip.className = 'chip active';
+    chip.innerHTML = col + ' &#10003;';
+    boolFilters[col] = 'True';
+  } else {
+    chip.className = 'chip active';
+    chip.style.background = '#a03030';
+    chip.innerHTML = col + ' &#10007;';
+    boolFilters[col] = 'False';
+  }
+  if (state !== 2) chip.style.background = '';
+  currentPage = 1;
+  applyFilters();
+}
+
+/* ---- FILTERS ---- */
+function applyFilters() {
+  const dateVal = document.getElementById('dateFilter').value;
+  const tickerVal = document.getElementById('tickerSearch').value.trim().toUpperCase();
+
+  filteredData = DATA.filter(row => {
+    if (dateVal && row['Date'] !== dateVal) return false;
+    if (tickerVal && !row['Ticker'].toUpperCase().includes(tickerVal)) return false;
+    for (const col in boolFilters) {
+      if (row[col] !== boolFilters[col]) return false;
+    }
+    return true;
+  });
+
+  if (sortCol) doSort();
+  updateStats();
+  renderPage();
+}
+
+/* ---- SORT ---- */
+function sortBy(col, thEl) {
+  if (sortCol === col) { sortAsc = !sortAsc; }
+  else { sortCol = col; sortAsc = true; }
+  // Update arrows
+  document.querySelectorAll('#tableHead th').forEach(t => t.classList.remove('sorted'));
+  thEl.classList.add('sorted');
+  thEl.querySelector('.sort-arrow').innerHTML = sortAsc ? '&#9650;' : '&#9660;';
+  doSort();
+  currentPage = 1;
+  renderPage();
+}
+
+function doSort() {
+  const t = COL_TYPES[sortCol] || 'text';
+  filteredData.sort((a, b) => {
+    let va = a[sortCol] || '', vb = b[sortCol] || '';
+    if (t === 'numeric') {
+      va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+/* ---- STATS ---- */
+function updateStats() {
+  document.getElementById('rowCount').textContent = filteredData.length + ' rows';
+}
+
+/* ---- RENDER ---- */
+function renderPage() {
+  const start = (currentPage - 1) * pageSize;
+  const end = Math.min(start + pageSize, filteredData.length);
+  const pageData = filteredData.slice(start, end);
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  pageData.forEach(row => {
+    const tr = document.createElement('tr');
+    HEADERS.forEach(h => {
+      const td = document.createElement('td');
+      const val = row[h] || '';
+      const t = COL_TYPES[h];
+      if (t === 'boolean') {
+        if (val === 'True') td.innerHTML = '<span class="badge-true">True</span>';
+        else td.innerHTML = '<span class="badge-false">False</span>';
+      } else if (t === 'numeric') {
+        const n = parseFloat(val);
+        td.textContent = val;
+        if (!isNaN(n)) {
+          if (n >= 70) td.classList.add('num-high');
+          else if (n <= 30) td.classList.add('num-low');
+        }
+      } else {
+        td.textContent = val;
+        if (h === 'Ticker') td.style.fontWeight = '700';
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  renderPagination();
+}
+
+/* ---- PAGINATION ---- */
+function renderPagination() {
+  const pg = document.getElementById('pagination');
+  const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+  let html = '<div>';
+  html += `<span class="page-info">Page ${currentPage} of ${totalPages} &middot; ${filteredData.length} rows</span> `;
+  html += `<select class="page-size-select" onchange="changePageSize(this.value)">`;
+  [25, 50, 100, 250, 500].forEach(s => {
+    html += '<option value="'+s+'" '+(s===pageSize?'selected':'')+'>'+s+' / page</option>';
+  });
+  html += `</select></div><div>`;
+
+  if (currentPage > 1) html += `<button onclick="goPage(${currentPage-1})">&#9664; Prev</button> `;
+  const startP = Math.max(1, currentPage - 3);
+  const endP = Math.min(totalPages, currentPage + 3);
+  for (let i = startP; i <= endP; i++) {
+    html += `<button class="${i===currentPage?'active-page':''}" onclick="goPage(${i})">${i}</button> `;
+  }
+  if (currentPage < totalPages) html += `<button onclick="goPage(${currentPage+1})">Next &#9654;</button>`;
+  html += '</div>';
+  pg.innerHTML = html;
+}
+
+function goPage(p) { currentPage = p; renderPage(); }
+function changePageSize(s) { pageSize = parseInt(s); currentPage = 1; renderPage(); }
+
+/* ---- CLEAR ---- */
+function clearFilters() {
+  document.getElementById('dateFilter').value = '';
+  document.getElementById('tickerSearch').value = '';
+  boolFilters = {};
+  document.querySelectorAll('.chip').forEach(c => {
+    c.dataset.state = '0';
+    c.className = 'chip';
+    c.style.background = '';
+    c.innerHTML = c.dataset.col;
+  });
+  sortCol = null; sortAsc = true;
+  currentPage = 1;
+  applyFilters();
+}
+
+/* ---- EXPORT ---- */
+function exportCSV() {
+  let csv = HEADERS.join(',') + '\n';
+  filteredData.forEach(row => {
+    csv += HEADERS.map(h => {
+      let v = row[h] || '';
+      if (v.includes(',') || v.includes('"')) v = '"' + v.replace(/"/g, '""') + '"';
+      return v;
+    }).join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'filtered_export.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
